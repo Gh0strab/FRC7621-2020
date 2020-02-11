@@ -123,7 +123,7 @@ public class Robot extends TimedRobot {
      	 System.out.println("Auto Null Warning #2");
      	 defaultAutoCommand.start();
    			 }
-   	 HardwareMap.gyro.reset();
+   	 ZeroGyroCommand.gyro.reset();
 	
   }
 
