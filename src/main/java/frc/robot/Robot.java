@@ -26,6 +26,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import com.playingwithfusion.TimeOfFlight;
 import frc.robot.commands.ZeroGyroCommand;
+import edu.wpi.first.wpilibj.command.Command;
 
 import frc.robot.OI;
 import frc.robot.subsystems.Drivetrain;
@@ -37,9 +38,10 @@ import frc.robot.AutonomousRoutines.*;
 public class Robot extends TimedRobot {
 	
 	private static final String Doublesolenoid = null;
+	private static Command defaultAutoCommand;
 	public static Drivetrain m_drivetrain;
 	public static Intake m_intake;
-	//public Joystick joystick;
+	public static SendableChooser <Command> autoChooser;
 	public static OI m_OI;
 	
 	//vision motor control
@@ -79,19 +81,19 @@ public class Robot extends TimedRobot {
 //*********************************************************************************************************************************************
 	//Initilazition function
 	public void robotInit(){
+		m_OI = new OI();
+		m_drivetrain = new Drivetrain();
+		m_intake = new Intake();
+
+		//Selector for Auto
+		autoChooser = new SendableChooser<>();
+		autoChooser.addDefault("12PointAuto", defaultAutoCommand);
+		autoChooser.addObject("24PointAuto", new TwentyFourPointAuto());
 	
-	m_OI = new OI();
-	m_drivetrain = new Drivetrain();
-	m_intake = new Intake();
-		
-	autoChooser = new SendableChooser<>();
-	autoChooser.addDefault("3PointAuto", defaultAutoCommand);
-	autoChooser.addObject("5PointAuto", new 5PointAuto());
-	
-	SmartDashboard.putData("AutoChooser", autoChooser);
-	SmartDashboard.putData(new ZeroGyroCommand());
-	/*	
-	m_frontLeft = new VictorSP(1);
+		SmartDashboard.putData("AutoChooser", autoChooser);
+		SmartDashboard.putData(new ZeroGyroCommand());
+		//other stuff
+		m_frontLeft = new VictorSP(1);
     	m_rearLeft = new VictorSP(2);
     	m_left = new SpeedControllerGroup(m_frontLeft, m_rearLeft);
     	m_frontRight = new VictorSP(3);
@@ -103,31 +105,27 @@ public class Robot extends TimedRobot {
 			//Points to the database value named "yaw" and "pitch"
 		targetX=table.getEntry("yaw"); 
 		targetY=table.getEntry("pitch");
-		*/
 	}
 
 //**************************************************************************************************************************
 
 	@Override
 	public void autonomousInit() {
-		
 	    if (autoChooser != null) {
-      Command autonomousCommand = autoChooser.getSelected();
-      if (autonomousCommand != null) {
-       	 autonomousCommand.start();
-     		 } else {
-        System.out.println("Auto Null Warning #1");
-        defaultAutoCommand.start();
-      	}
-   		 } else {
-     	 System.out.println("Auto Null Warning #2");
-     	 defaultAutoCommand.start();
-   			 }
-   	 ZeroGyroCommand.gyro.reset();
-	
-  }
-
-
+			Command autonomousCommand = autoChooser.getSelected();
+			if (autonomousCommand != null) {
+				  autonomousCommand.start();
+					} else {
+			  System.out.println("Auto Null Warning #1");
+			  defaultAutoCommand.start();
+				}
+				  } else {
+				System.out.println("Auto Null Warning #2");
+				defaultAutoCommand.start();
+					  }
+			  ZeroGyroCommand.gyro.reset();
+		  
+	}
 
 //**************************************************************************************************************************************************
 
@@ -169,7 +167,7 @@ public class Robot extends TimedRobot {
 			m_drive.arcadeDrive(distanceAjust,rotationAjust);
 					   
 		}else{
-			m_drivetrain.drive(joystick);
+			m_drivetrain.drive(JoyStick);
 		
 		}
 				
