@@ -9,18 +9,14 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;//need this and smart dashboard for auto choice
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -37,8 +33,8 @@ import frc.robot.AutonomousRoutines.*;
 
 public class Robot extends TimedRobot {
 	
-	private static final String Doublesolenoid = null;
 	private static Command defaultAutoCommand;
+	public static final boolean SKIP_GYRO_CALIBRATION = false;
 	public static Drivetrain m_drivetrain;
 	public static Intake m_intake;
 	public static SendableChooser <Command> autoChooser;
@@ -55,12 +51,10 @@ public class Robot extends TimedRobot {
 	SpeedControllerGroup m_Right;
 	DifferentialDrive m_drive;
 
-//	VictorSPX IntakeMotor = new VictorSPX(5);
 	VictorSPX IndexingMotor = new VictorSPX(6);
 	Spark ShootingMotor = new Spark(1);
 	TimeOfFlight Intake_sensor = new TimeOfFlight(3);
 	Joystick JoyStick = new Joystick(0);
-	//DoubleSolenoid IntakeCylinder = new DoubleSolenoid(0, 1);
 	Solenoid LightRing = new Solenoid(6,7);
 	Compressor c = new Compressor(0);
 
@@ -85,13 +79,29 @@ public class Robot extends TimedRobot {
 		m_drivetrain = new Drivetrain();
 		m_intake = new Intake();
 
+		//NavX Calibration
+		if(SKIP_GYRO_CALIBRATION) {
+			System.out.println("Skipping gyro calibration");
+		  } else {
+			System.out.println("Calibrating Gyro...");
+			ZeroGyroCommand.ahrs.isCalibrating();
+			System.out.println("Gyro calibrated");
+		  }
+
 		//Selector for Auto
 		autoChooser = new SendableChooser<>();
-		autoChooser.addDefault("12PointAuto", defaultAutoCommand);
-		autoChooser.addObject("24PointAuto", new TwentyFourPointAuto());
-	
+		autoChooser.setDefaultOption("A Trench 12 Point Auto", defaultAutoCommand);
+		autoChooser.addOption("A Trench 24 Point", new ATrenchRun24Point());
+		autoChooser.addOption("A Middle 12 Point", new AMidRun12Point());
+		autoChooser.addOption("A Middle 24 Point", new AMidRun24Point());
+		autoChooser.addOption("B Trench 12 Point", new BTrenchRun12Point());
+		autoChooser.addOption("B Trench 24 Point", new BTrenchRun24Point());
+		autoChooser.addOption("B Middle 12 Point", new BMidRun12Point());
+		autoChooser.addOption("B Middle 24 Point", new BMidRun24Point());
+		
 		SmartDashboard.putData("AutoChooser", autoChooser);
 		SmartDashboard.putData(new ZeroGyroCommand());
+
 		//other stuff
 		m_frontLeft = new VictorSP(1);
     	m_rearLeft = new VictorSP(2);
@@ -123,7 +133,7 @@ public class Robot extends TimedRobot {
 				System.out.println("Auto Null Warning #2");
 				defaultAutoCommand.start();
 					  }
-			  ZeroGyroCommand.gyro.reset();
+			  ZeroGyroCommand.ahrs.reset();
 		  
 	}
 
@@ -171,18 +181,7 @@ public class Robot extends TimedRobot {
 		
 		}
 				
-			/*	//need to add light ring activation
 
-		//Activates and deactivates Intake cylinder	 
-		if (JoyStick.getRawAxis(OI.BUTNUM_LT)>0) {
-				IntakeCylinder.set(DoubleSolenoid.Value.kForward);
-				IntakeMotor.set(ControlMode.PercentOutput, 1);
-			} else {
-				IntakeCylinder.set(DoubleSolenoid.Value.kReverse);
-				IntakeMotor.set(ControlMode.PercentOutput, 0);	
-			 }
-			 */
-		
 	}
 }
 

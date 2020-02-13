@@ -6,6 +6,7 @@ import frc.robot.Robot;
 public class DriveTank extends Command {
     public DriveTank(){
         requires(Robot.m_drivetrain);
+
     }
 
     //CALLED THE FIRST TIME COMMAND RUNS
