@@ -27,6 +27,8 @@ import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.OI;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Shooter;
 import frc.robot.AutonomousRoutines.*;
 
 //************************************************************************************************************************
@@ -39,38 +41,13 @@ public class Robot extends TimedRobot {
 	public static Intake m_intake;
 	public static SendableChooser <Command> autoChooser;
 	public static OI m_OI;
-	
-	//vision motor control
-	double rightMotorSpeed;
-	double leftMotorSpeed; 
-	VictorSP m_frontLeft;
-	VictorSP m_rearLeft;
-	SpeedControllerGroup m_left;
-	VictorSP m_frontRight;
-	VictorSP m_rearRight;
-	SpeedControllerGroup m_Right;
-	DifferentialDrive m_drive;
-
+	public static Vision m_vision;
+	public static SHooter m_shooter;
 	VictorSPX IndexingMotor = new VictorSPX(6);
 	Spark ShootingMotor = new Spark(1);
 	TimeOfFlight Intake_sensor = new TimeOfFlight(3);
-	Joystick JoyStick = new Joystick(0);
 	Solenoid LightRing = new Solenoid(6,7);
 	Compressor c = new Compressor(0);
-
-	NetworkTable table;
-	NetworkTableEntry targetX;
-	NetworkTableEntry targetY;
-
-	double rotationError;
-	double distanceError;
-	double KpRot=-0.1;
-	double KpDist=-0.1;
-	double angleTolerance=5;//Deadzone for the angle control loop
-	double distanceTolerance=5;//Deadzone for the distance control loop
-	double constantForce=0.05;
-	double rotationAjust;
-	double distanceAjust;
 	
 //*********************************************************************************************************************************************
 	//Initilazition function
@@ -78,6 +55,8 @@ public class Robot extends TimedRobot {
 		m_OI = new OI();
 		m_drivetrain = new Drivetrain();
 		m_intake = new Intake();
+		m_vision = new Vision();
+		m_shooter = new Shooter();
 
 		//NavX Calibration
 		if(SKIP_GYRO_CALIBRATION) {
@@ -102,14 +81,7 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putData("AutoChooser", autoChooser);
 		SmartDashboard.putData(new ZeroGyroCommand());
 
-		//other stuff
-		m_frontLeft = new VictorSP(1);
-    	m_rearLeft = new VictorSP(2);
-    	m_left = new SpeedControllerGroup(m_frontLeft, m_rearLeft);
-    	m_frontRight = new VictorSP(3);
-    	m_rearRight = new VictorSP(4);
-        m_Right = new SpeedControllerGroup(m_frontRight, m_rearRight);
-		m_drive = new DifferentialDrive(m_left, m_Right);
+
 			//Points "table" to the NetworkTable database called "chameleon-vision"
 		table=NetworkTableInstance.getDefault().getTable("chameleon-vision").getSubTable("PS3EYE");
 			//Points to the database value named "yaw" and "pitch"
@@ -156,7 +128,7 @@ public class Robot extends TimedRobot {
 		rotationAjust=0;
 		distanceAjust=0;
 		//This is vision code to line up the robot with vision target
-		if(JoyStick.getRawAxis(OI.BUTNUM_RT)>0){
+		if(drivercontroller.getRawAxis(OI.BUTNUM_RT)>0){
 			/* Fetches the rotation and distance values from the vision co processor
 				sets the value to 0.0 if the value doesnt exist in the database */
 			rotationError=targetX.getDouble(0.0);

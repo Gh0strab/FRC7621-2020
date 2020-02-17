@@ -17,7 +17,7 @@ public class IntakeOff extends Command {
     //CALLED REPEATEDLY DURING COMMAND
     @Override
     protected void execute() {
-        //DO THE DRIVING HERE
+     
     }
 
     @Override
@@ -27,7 +27,7 @@ public class IntakeOff extends Command {
 
     @Override
     protected void end() {
-        //STOP DRIVING HERE
+      
     }
 
     @Override

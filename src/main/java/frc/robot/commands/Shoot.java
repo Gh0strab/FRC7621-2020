@@ -7,6 +7,7 @@ import frc.robot.commands.Aim;
 import frc.robot.subsystems.*;
 public class Shoot extends InstantCommand{
     public Shoot(){
-        requires(Vision.Aim);
+        
     }
+    
 }

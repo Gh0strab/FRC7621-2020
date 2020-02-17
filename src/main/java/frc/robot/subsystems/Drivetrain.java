@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-
+import main.java.frc.robot.OI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.VictorSP;
@@ -22,45 +22,25 @@ public class Drivetrain extends Subsystem{
     VictorSP m_rearRight;
     SpeedControllerGroup m_Right;
     DifferentialDrive m_drive;
-
-//driver motor control
-    VictorSPX leftRearDrive = new VictorSPX(4);
-    VictorSPX rightRearDrive  = new VictorSPX(1);
-    VictorSPX leftFrontDrive = new VictorSPX(3);
-    VictorSPX rightFrontDrive = new VictorSPX(0);
-    DifferentialDrive drive;
-
+    Encoder l_enc;
+    Encoder r_enc;
+    
     public Drivetrain() {
-        //INITIALIZE YOUR VARIABLES HERE
-
-        //SET SPEEDCONTROLLERGROUP(S) HERE
-
-        //INITIALIZE ENCODERS HERE
+        m_frontLeft = new VictorSP(1);
+    	m_rearLeft = new VictorSP(2);
+    	m_left = new SpeedControllerGroup(m_frontLeft, m_rearLeft);
+    	m_frontRight = new VictorSP(3);
+    	m_rearRight = new VictorSP(4);
+        m_right = new SpeedControllerGroup(m_frontRight, m_rearRight);
+        m_drive = new DifferentialDrive(m_left, m_right);
+        l_enc = new Encoder(k_left_encoder_port_a,k_left_encoder_port_b);
+        r_enc = new Encoder(k_right_encoder_port_a,k_right_encoder_port_b);
     }
-
+    public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+        return new DifferentialDriveWheelSpeeds(m_leftEncoder.getRate(), m_rightEncoder.getRate());
+    }
     public void drive(Joystick joystick){
-/*       	//This makes us go fast
-    if (JoyStick.getRawButton(OI.X)) {	
-        double throttleValue = JoyStick.getRawAxis(1);
-        double turnValue = JoyStick.getRawAxis(4);
-        rightMotorSpeed = throttleValue + turnValue;
-        leftMotorSpeed = -1 * (throttleValue - turnValue);
-            leftFrontDrive.set(ControlMode.PercentOutput, leftMotorSpeed * 1);
-            rightFrontDrive.set(ControlMode.PercentOutput, rightMotorSpeed * 1);
-        }else{
-            double throttleValue = JoyStick.getRawAxis(1);
-            double turnValue = JoyStick.getRawAxis(4);
-            rightMotorSpeed = throttleValue + turnValue;
-            leftMotorSpeed = -1 * (throttleValue - turnValue);
-            leftFrontDrive.set(ControlMode.PercentOutput, leftMotorSpeed * .40);
-            rightFrontDrive.set(ControlMode.PercentOutput, rightMotorSpeed * .40);
-            */
-        double throttleValue = joystick.getRawAxis(1);
-        double turnValue = joystick.getRawAxis(4);
-        rightMotorSpeed = throttleValue + turnValue;
-        leftMotorSpeed = -1 * (throttleValue - turnValue);
-            leftFrontDrive.set(ControlMode.PercentOutput, leftMotorSpeed * 1);
-            rightFrontDrive.set(ControlMode.PercentOutput, rightMotorSpeed * 1);
+        m_Drive.tankDrive(drivercontroller.getRawAxis(OI.AXIS_LY), drivercontroller.getRawAxis(OI.AXIS_RX));
     } 
 
 

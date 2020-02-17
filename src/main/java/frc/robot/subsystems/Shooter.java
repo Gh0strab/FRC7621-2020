@@ -5,11 +5,12 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 public class Shooter extends Subsystem {
 
     public Shooter() {
-
+        requires(Robot.m_shooter);
+        requires(Robot.m_vision);
     }
 
     @Override
     public void initDefaultCommand() {
-        //Set the default command for the subsystem here
+        
     }
 }

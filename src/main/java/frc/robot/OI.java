@@ -56,7 +56,7 @@
         public OI() {
             BTN_LT.whenPressed(new IntakeOn());
             BTN_LT.whenReleased(new IntakeOff());
-
-
+            BTN_RT.whenPressed(new Aim());
+            BTN_RT.whenReleased(new StopAim());
         }
     }
