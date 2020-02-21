@@ -29,6 +29,7 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Climber;
 import frc.robot.AutonomousRoutines.*;
 
 //************************************************************************************************************************
@@ -42,7 +43,8 @@ public class Robot extends TimedRobot {
 	public static SendableChooser <Command> autoChooser;
 	public static OI m_OI;
 	public static Vision m_vision;
-	public static SHooter m_shooter;
+	public static Shooter m_shooter;
+	public static Climber m_climber;
 	VictorSPX IndexingMotor = new VictorSPX(6);
 	Spark ShootingMotor = new Spark(1);
 	TimeOfFlight Intake_sensor = new TimeOfFlight(3);
@@ -57,6 +59,7 @@ public class Robot extends TimedRobot {
 		m_intake = new Intake();
 		m_vision = new Vision();
 		m_shooter = new Shooter();
+		m_climber = new Climber();
 
 		//NavX Calibration
 		if(SKIP_GYRO_CALIBRATION) {
@@ -69,25 +72,13 @@ public class Robot extends TimedRobot {
 
 		//Selector for Auto
 		autoChooser = new SendableChooser<>();
-		autoChooser.setDefaultOption("A Trench 12 Point Auto", defaultAutoCommand);
-		autoChooser.addOption("A Trench 24 Point", new ATrenchRun24Point());
-		autoChooser.addOption("A Middle 12 Point", new AMidRun12Point());
-		autoChooser.addOption("A Middle 24 Point", new AMidRun24Point());
-		autoChooser.addOption("B Trench 12 Point", new BTrenchRun12Point());
-		autoChooser.addOption("B Trench 24 Point", new BTrenchRun24Point());
-		autoChooser.addOption("B Middle 12 Point", new BMidRun12Point());
-		autoChooser.addOption("B Middle 24 Point", new BMidRun24Point());
+		autoChooser.setDefaultOption("AMoveAndShoot", defaultAutoCommand);
 		
 		SmartDashboard.putData("AutoChooser", autoChooser);
 		SmartDashboard.putData(new ZeroGyroCommand());
 
 
 			//Points "table" to the NetworkTable database called "chameleon-vision"
-		table=NetworkTableInstance.getDefault().getTable("chameleon-vision").getSubTable("PS3EYE");
-			//Points to the database value named "yaw" and "pitch"
-		targetX=table.getEntry("yaw"); 
-		targetY=table.getEntry("pitch");
-	}
 
 //**************************************************************************************************************************
 
@@ -125,33 +116,6 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 	
-		rotationAjust=0;
-		distanceAjust=0;
-		//This is vision code to line up the robot with vision target
-		if(drivercontroller.getRawAxis(OI.BUTNUM_RT)>0){
-			/* Fetches the rotation and distance values from the vision co processor
-				sets the value to 0.0 if the value doesnt exist in the database */
-			rotationError=targetX.getDouble(0.0);
-			distanceError=targetY.getDouble(0.0); //subtract maximum distance to get distance error
-			
-			if(rotationError>angleTolerance)
-					rotationAjust=KpRot*rotationError+constantForce;
-			else
-					if(rotationError<angleTolerance)
-							rotationAjust=KpRot*rotationError-constantForce;
-
-			if(distanceError>distanceTolerance)
-					distanceAjust=KpDist*distanceError+constantForce;
-			else
-					if(distanceError<distanceTolerance)
-							distanceAjust=KpDist*distanceError-constantForce;
-			
-			m_drive.arcadeDrive(distanceAjust,rotationAjust);
-					   
-		}else{
-			m_drivetrain.drive(JoyStick);
-		
-		}
 				
 
 	}
