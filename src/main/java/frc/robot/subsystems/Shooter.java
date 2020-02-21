@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
-
+import frc.robot.Robot;
 public class Shooter extends Subsystem {
 
     public Shooter() {

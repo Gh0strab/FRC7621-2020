@@ -3,9 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import edu.wpi.first.wpilibj.Joystick;
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import frc.robot.OI;
 
 
 public class Intake extends Subsystem {
@@ -23,11 +21,11 @@ public class Intake extends Subsystem {
        
     }
 
-    public void turnon(){
+    public void TurnOn(){
         IntakeCylinder.set(DoubleSolenoid.Value.kForward);
         IntakeMotor.set(ControlMode.PercentOutput, 1);
     }
-    public void turnoff(){
+    public void TurnOff(){
         IntakeCylinder.set(DoubleSolenoid.Value.kReverse);
         IntakeMotor.set(ControlMode.PercentOutput, 0);	
     }

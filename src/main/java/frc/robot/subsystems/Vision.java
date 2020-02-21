@@ -4,6 +4,10 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.commands.Aim;
 import frc.robot.commands.StopAim;
 import frc.robot.subsystems.Drivetrain;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
 public class Vision extends Subsystem {
     public static Drivetrain m_drivetrain;
 
@@ -57,4 +61,5 @@ public class Vision extends Subsystem {
         public void Visionturnoff(){
 
     }
+}
 

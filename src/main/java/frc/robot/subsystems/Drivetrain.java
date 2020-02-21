@@ -1,15 +1,15 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import main.java.frc.robot.OI;
+import frc.robot.OI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.Spark;
-import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.Joystick;
-import com.ctre.phoenix.motorcontrol.ControlMode;
+
 
 public class Drivetrain extends Subsystem{
     
@@ -20,8 +20,8 @@ public class Drivetrain extends Subsystem{
     SpeedControllerGroup m_left;
     VictorSP m_frontRight;
     VictorSP m_rearRight;
-    SpeedControllerGroup m_Right;
-    DifferentialDrive m_drive;
+    SpeedControllerGroup m_right;
+    DifferentialDrive m_drivetrain;
     Encoder l_enc;
     Encoder r_enc;
     
@@ -32,23 +32,28 @@ public class Drivetrain extends Subsystem{
     	m_frontRight = new VictorSP(3);
     	m_rearRight = new VictorSP(4);
         m_right = new SpeedControllerGroup(m_frontRight, m_rearRight);
-        m_drive = new DifferentialDrive(m_left, m_right);
-        l_enc = new Encoder(k_left_encoder_port_a,k_left_encoder_port_b);
-        r_enc = new Encoder(k_right_encoder_port_a,k_right_encoder_port_b);
+        m_drivetrain = new DifferentialDrive(m_left, m_right);
+        l_enc = new Encoder(0,1);
+        r_enc = new Encoder(2,3);
     }
     public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-        return new DifferentialDriveWheelSpeeds(m_leftEncoder.getRate(), m_rightEncoder.getRate());
+        return new DifferentialDriveWheelSpeeds(l_enc.getRate(), r_enc.getRate());
     }
-    public void drive(Joystick joystick){
-        m_Drive.tankDrive(drivercontroller.getRawAxis(OI.AXIS_LY), drivercontroller.getRawAxis(OI.AXIS_RX));
+    public void drive(Joystick drivercontroller){  
+        m_drivetrain.tankDrive(drivercontroller.getRawAxis(OI.AXIS_LY), drivercontroller.getRawAxis(OI.AXIS_RX));
     } 
-
-
+    public void tankDriveVolts(double leftVolts, double rightVolts) {
+        m_left.setVoltage(leftVolts);
+        m_right.setVoltage(-rightVolts);
+        m_drivetrain.feed();
+    }
     @Override
     public void initDefaultCommand() {
         //Set the default command for the subsystem here
         //uses: "setDefaultCommand(new <command>());"
     }
+	public void arcadeDrive(double distanceAjust, double rotationAjust) {
+	}
 }
 
     
