@@ -1,7 +1,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.command.InstantCommand;
-public class StopAim extends Command {
+import frc.robot.Robot;
+public class StopAim extends InstantCommand {
   public StopAim(){
       requires(Robot.m_vision);
   }

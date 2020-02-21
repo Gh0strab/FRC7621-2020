@@ -1,9 +1,9 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.command.InstantCommand;
 import frc.robot.Robot;
 
-public class IntakeOn extends Command {
+public class IntakeOn extends  InstantCommand {
     public IntakeOn(){
         requires(Robot.m_intake);
     }
@@ -11,27 +11,7 @@ public class IntakeOn extends Command {
     //CALLED THE FIRST TIME COMMAND RUNS
     @Override
     protected void initialize() {
-        Robot.m_intake.turnon();
+        Robot.m_intake.TurnOn();
     }
 
-    //CALLED REPEATEDLY DURING COMMAND
-    @Override
-    protected void execute() {
-        //DO THE DRIVING HERE
-    }
-
-    @Override
-    protected boolean isFinished() {
-        return false;
-    }
-
-    @Override
-    protected void end() {
-        //STOP DRIVING HERE
-    }
-
-    @Override
-    protected void interrupted() {
-        end();
-    }
 }

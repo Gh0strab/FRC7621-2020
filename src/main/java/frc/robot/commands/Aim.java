@@ -1,7 +1,7 @@
 package frc.robot.commands;
-
+import frc.robot.Robot;
 import edu.wpi.first.wpilibj.command.InstantCommand;
-public class Aim extends Command {
+public class Aim extends InstantCommand {
   public Aim(){
       requires(Robot.m_vision);
   }
