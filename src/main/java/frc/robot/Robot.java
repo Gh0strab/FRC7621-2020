@@ -7,30 +7,22 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Spark;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import edu.wpi.first.wpilibj.VictorSP;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;//need this and smart dashboard for auto choice
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import com.playingwithfusion.TimeOfFlight;
-import frc.robot.commands.ZeroGyroCommand;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 
 import frc.robot.OI;
+import frc.robot.AutonomousRoutines.MoveAndShoot;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Climber;
-import frc.robot.AutonomousRoutines.*;
+import frc.robot.subsystems.Gyro;
 
 //************************************************************************************************************************
 
@@ -45,58 +37,66 @@ public class Robot extends TimedRobot {
 	public static Vision m_vision;
 	public static Shooter m_shooter;
 	public static Climber m_climber;
-	VictorSPX IndexingMotor = new VictorSPX(6);
-	Spark ShootingMotor = new Spark(1);
-	TimeOfFlight Intake_sensor = new TimeOfFlight(3);
-	Solenoid LightRing = new Solenoid(6,7);
+	public static Gyro m_gyro;
+	public static Indexer m_indexer;
+	public Joystick driverController = new Joystick(0);
 	Compressor c = new Compressor(0);
 	
 //*********************************************************************************************************************************************
 	//Initilazition function
 	public void robotInit(){
-		m_OI = new OI();
+		
 		m_drivetrain = new Drivetrain();
 		m_intake = new Intake();
+		m_indexer = new Indexer();
 		m_vision = new Vision();
 		m_shooter = new Shooter();
 		m_climber = new Climber();
-
+		m_gyro = new Gyro();
+		m_OI = new OI();
+		
 		//NavX Calibration
 		if(SKIP_GYRO_CALIBRATION) {
 			System.out.println("Skipping gyro calibration");
 		  } else {
 			System.out.println("Calibrating Gyro...");
-			ZeroGyroCommand.ahrs.isCalibrating();
+			m_gyro.isCalibrating();
 			System.out.println("Gyro calibrated");
+
 		  }
-
-		//Selector for Auto
-		autoChooser = new SendableChooser<>();
-		autoChooser.setDefaultOption("AMoveAndShoot", defaultAutoCommand);
+		  autoChooser = new SendableChooser<>();
+		  autoChooser.addOption("MoveAndShoot", new MoveAndShoot());
+		  autoChooser.addOption("default", defaultAutoCommand);
+		  SmartDashboard.putData("AutoChooser", autoChooser);
+	}
+		  
 		
-		SmartDashboard.putData("AutoChooser", autoChooser);
-		SmartDashboard.putData(new ZeroGyroCommand());
 
 
-			//Points "table" to the NetworkTable database called "chameleon-vision"
+			
 
 //**************************************************************************************************************************
 
 	@Override
 	public void autonomousInit() {
+		
 	    if (autoChooser != null) {
 			Command autonomousCommand = autoChooser.getSelected();
+			
 			if (autonomousCommand != null) {
 				  autonomousCommand.start();
 					} else {
 			  System.out.println("Auto Null Warning #1");
-			  defaultAutoCommand.start();
+			  //defaultAutoCommand.start();
 				}
 				  } else {
 				System.out.println("Auto Null Warning #2");
-				defaultAutoCommand.start();
+				//defaultAutoCommand.start();
 					  }
-			  ZeroGyroCommand.ahrs.reset();
+			
+					
+			  m_gyro.reset();
+			 
 		  
 	}
 
@@ -104,7 +104,9 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void autonomousPeriodic() {	
-
+		 
+    
+    
 
 
 
@@ -115,9 +117,68 @@ public class Robot extends TimedRobot {
 	
 	@Override
 	public void teleopPeriodic() {
-	
-				
+		//DRIVE
+		m_drivetrain.drive();
 
+		//INTAKE
+		if(driverController.getRawAxis(OI.BUTNUM_LT)>.05){
+			m_intake.TurnOn();
+		}else{
+			m_intake.TurnOff();
+		}
+
+		//SHOOTER
+		if(driverController.getRawAxis(OI.BUTNUM_RT)>.05){
+			m_vision.Aim();
+			m_shooter.Shoot();
+		  	//m_shooter.set(Constants.getConstants().debugShooterSet);
+		}else{																																																																																																																																																					
+			m_vision.StopAim();
+			m_shooter.StopShoot();
+			//m_shooter.stop();
+		}
+
+		//CLIMBER		
+		if(driverController.getRawButton(OI.BUTNUM_A)){
+			m_climber.ClimberExtend();
+		}else{
+			m_climber.ClimberStop();
+			if(driverController.getRawButton(OI.BUTNUM_B)){
+				m_climber.ClimberRetract();
+			}else{
+				m_climber.ClimberStop();
+		}
+
+		//WINCH
+		if(driverController.getRawButton(OI.BUTNUM_X)){
+			m_climber.WinchRetract();
+			}else{
+			m_climber.WinchStop();
+		}
+
+		//MOVE INDEXER
+		if(driverController.getRawButton(OI.BUTNUM_LB)){
+			m_indexer.Index();
+			}else{
+			m_indexer.IndexStop();
+		}
+
+		//OUTTAKE BALLS
+		if(driverController.getRawButton(OI.BUTNUM_RB)){
+			m_intake.OutTake();
+			m_indexer.OutTake();
+		}
+
+		}
+	}
+	@Override
+	public void testPeriodic() {
+			if(driverController.getRawButton(OI.BUTNUM_B)){
+				m_climber.WinchReset();
+			}else{
+				m_climber.WinchStop();
+			
+			}
 	}
 }
 
