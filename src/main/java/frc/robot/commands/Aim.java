@@ -1,21 +1,23 @@
 package frc.robot.commands;
+
 import frc.robot.Robot;
-import edu.wpi.first.wpilibj.command.InstantCommand;
-public class Aim extends InstantCommand {
+import edu.wpi.first.wpilibj.command.Command;
+public class Aim extends Command {
   public Aim(){
       requires(Robot.m_vision);
+    
   }
 
   //CALLED THE FIRST TIME COMMAND RUNS
   @Override
   protected void initialize() {
-    Robot.m_vision.Visionturnon();
+    
   }
 
   //CALLED REPEATEDLY DURING COMMAND
   @Override
   protected void execute() {
-
+    Robot.m_vision.Aim();
   }
 
   @Override
