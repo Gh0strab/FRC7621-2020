@@ -1,15 +1,16 @@
 package frc.robot.subsystems;
 
+import frc.robot.Portmap;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
-
 public class Intake extends Subsystem {
     
-	DoubleSolenoid IntakeCylinder = new DoubleSolenoid(0, 1);
-	VictorSPX IntakeMotor = new VictorSPX(5);
+    DoubleSolenoid IntakeCylinder = new DoubleSolenoid(Portmap.INTAKE_DEPLOY, Portmap.INTAKE_RETRACT);  
+	VictorSPX IntakeMotor = new VictorSPX(Portmap.INTAKE_MOTOR);
+   
 
     public Intake() {
 
@@ -17,16 +18,21 @@ public class Intake extends Subsystem {
 
     @Override
     public void initDefaultCommand() {
-        //Set the default command for the subsystem here
-       
+        
     }
 
     public void TurnOn(){
         IntakeCylinder.set(DoubleSolenoid.Value.kForward);
-        IntakeMotor.set(ControlMode.PercentOutput, 1);
+        IntakeMotor.set(ControlMode.PercentOutput, -.75);
+
     }
     public void TurnOff(){
         IntakeCylinder.set(DoubleSolenoid.Value.kReverse);
         IntakeMotor.set(ControlMode.PercentOutput, 0);	
     }
+    public void OutTake(){
+        IntakeMotor.set(ControlMode.PercentOutput, .45);
+    }
+    
+    
 }

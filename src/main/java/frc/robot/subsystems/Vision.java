@@ -1,64 +1,74 @@
 package frc.robot.subsystems;
 
+import frc.robot.Robot;
+
 import edu.wpi.first.wpilibj.command.Subsystem;
-import frc.robot.commands.Aim;
-import frc.robot.commands.StopAim;
-import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class Vision extends Subsystem {
-    public static Drivetrain m_drivetrain;
 
     NetworkTable table;
 	NetworkTableEntry targetX;
 	NetworkTableEntry targetY;
 
 	double rotationError;
-	double distanceError;
-	double KpRot=-0.1;
-	double KpDist=-0.1;
+    double distanceError;
+
+	double KpRot=-0.045;//adjust kp values to make aim less/ more responsive. this will fix your jittering problem
+	double KpDist=-0.07;
 	double angleTolerance=5;//Deadzone for the angle control loop
-	double distanceTolerance=5;//Deadzone for the distance control loop
+	double distanceTolerance=-7.2;//Deadzone for the distance control loop
 	double constantForce=0.05;
 	double rotationAjust;
-	double distanceAjust;
-    public Vision() {
+    double distanceAjust;
+    
+    public Vision(){
         
     }
 
     @Override
-    public void initDefaultCommand() {
-        m_drivetrain = new Drivetrain();
-        table=NetworkTableInstance.getDefault().getTable("chameleon-vision").getSubTable("PS3EYE");
-		targetX=table.getEntry("yaw"); 
-        targetY=table.getEntry("pitch");
-        
+    public void initDefaultCommand(){
+        //commented out sections are from chameleon vision, delete after testing with limelight
+
+        //table=NetworkTableInstance.getDefault().getTable("chameleon-vision").getSubTable("PS3EYE");
+        table=NetworkTableInstance.getDefault().getTable("limelight");
+
         }
-        public void Visionturnon(){
+        public void Aim(){
+
+            //targetX=table.getEntry("targetYaw"); 
+            //targetY=table.getEntry("targetPitch");
+            targetX=table.getEntry("tx");
+            targetY=table.getEntry("ty");
+
             rotationAjust=0;
             distanceAjust=0;
-                /* Fetches the rotation and distance values from the vision co processor
-                    sets the value to 0.0 if the value doesnt exist in the database */
-                rotationError=targetX.getDouble(0.0);
-                distanceError=targetY.getDouble(0.0)-8; //subtract maximum distance to get distance error
-                
+
+            double CameraHeight = 2;
+            double TargetHeight = 6.925; 
+            double CameraAngle = 45;
+
+            rotationError=targetX.getDouble(0.0);
+            distanceError=(TargetHeight - CameraHeight) / Math.tan(CameraAngle + targetY.getDouble(0.0));
+            //distanceError=targetY.getDouble(0.0); 
+       
                 if(rotationError>angleTolerance)
-                        rotationAjust=KpRot*rotationError+constantForce;
+                        rotationAjust=(KpRot*rotationError+constantForce)*-1;
                 else
                         if(rotationError<angleTolerance)
-                                rotationAjust=KpRot*rotationError-constantForce;
-    
+                                rotationAjust= (KpRot*rotationError-constantForce)*-1;
+                
                 if(distanceError>distanceTolerance)
                         distanceAjust=KpDist*distanceError+constantForce;
                 else
                         if(distanceError<distanceTolerance)
                                 distanceAjust=KpDist*distanceError-constantForce;
-                
-                m_drivetrain.arcadeDrive(distanceAjust,rotationAjust);
+               
+                                Robot.m_drivetrain.visionDrive(); 
         }
-        public void Visionturnoff(){
+        public void StopAim(){
 
     }
 }

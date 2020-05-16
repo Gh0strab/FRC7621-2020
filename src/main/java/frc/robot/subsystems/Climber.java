@@ -1,21 +1,22 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.command.Subsystem;
+import frc.robot.Portmap;
 
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import edu.wpi.first.wpilibj.command.Subsystem;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
+
 public class Climber extends Subsystem {
-    VictorSPX m_climbermotor;
-    VictorSPX m_winchmotor_right;
-    VictorSPX m_winchmotor_left;
-    //GroupMotorControllers m_winchmotors;
+    WPI_VictorSPX m_climbermotor;
+    WPI_VictorSPX m_winchmotor_right;
+    WPI_VictorSPX m_winchmotor_left;
 
     public Climber() {
-        m_climbermotor = new VictorSPX(7);
-    	m_winchmotor_right = new VictorSPX(8);
-    	m_winchmotor_left = new VictorSPX(9);
-    	//m_winchmotors = new GroupMotorControllers(m_winchmotor_left, m_winchmotor_right);
+        m_climbermotor = new WPI_VictorSPX(Portmap.CLIMBER_EXTENSION_MOTOR);
+    	m_winchmotor_right = new WPI_VictorSPX(Portmap.CLIMBER_WINCH_MOTORRIGHT);
+    	m_winchmotor_left = new WPI_VictorSPX(Portmap.CLIMBER_WINCH_MOTORLEFT);
+    	
     }
 
     @Override
@@ -24,10 +25,10 @@ public class Climber extends Subsystem {
     }
 
     public void ClimberExtend() {
-        SetExtensionMotorOutput(1);
+        SetExtensionMotorOutput(.5);
     }
     public void ClimberRetract() {
-        SetExtensionMotorOutput(-1);
+        SetExtensionMotorOutput(-.5);
 
     }
     public void ClimberStop() {
@@ -37,10 +38,10 @@ public class Climber extends Subsystem {
     void SetExtensionMotorOutput(double value) {
         m_climbermotor.set(ControlMode.PercentOutput, value);
     }
-    public void WinchRetract() {
+    public void WinchReset(){
         SetWinchMotorOutput(1);
     }
-    public void WinchExtend() {
+    public void WinchRetract() {
         SetWinchMotorOutput(-1);
     }
     public void WinchStop() {
